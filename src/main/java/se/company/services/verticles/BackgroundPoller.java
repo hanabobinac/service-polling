@@ -1,5 +1,7 @@
 package se.company.services.verticles;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
@@ -7,6 +9,7 @@ import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import se.company.services.database.ServiceDB;
 import se.company.services.models.ServiceRecord;
+import se.company.services.utils.Logger;
 
 
 public class BackgroundPoller {
@@ -26,7 +29,7 @@ public class BackgroundPoller {
                         for (JsonArray arr : list) {
                             ServiceRecord serviceRecord = new ServiceRecord(arr);
                             serviceRecord.date(new Date());
-                            serviceRecord.status(isReachableByPing(serviceRecord.url()));
+                            serviceRecord.status(isReachableByHttpGet(serviceRecord.url()));
                             serviceDB.updateServiceStatus(serviceRecord);
                         }
                     }
@@ -35,27 +38,22 @@ public class BackgroundPoller {
         return Future.succeededFuture();
     }
 
-    public static boolean isReachableByPing(String host) {
+    public static boolean isReachableByHttpGet(String host) {
         try {
-            String cmd = "";
-            if (System.getProperty("os.name").startsWith("Windows")) {
-                // For Windows
-                cmd = "ping -n 1 " + host;
-            } else {
-                // For Linux and OSX
-                cmd = "ping -c 1 " + host;
-            }
+            URL url = new URL("https://" + host);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            con.setConnectTimeout(5000);
+            con.setReadTimeout(5000);
 
-            Process myProcess = Runtime.getRuntime().exec(cmd);
-            myProcess.waitFor();
+            int status = con.getResponseCode();
+            Logger.debug("status: " + status);
 
-            if (myProcess.exitValue() == 0) {
-                return true;
-            } else {
-                return false;
-            }
+            con.disconnect();
+
+            return status == 200;
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.debug("Error during http get: " + e.getMessage());
             return false;
         }
     }
