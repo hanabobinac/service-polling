@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+println 'This is executed during the configuration phase.'
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+ext {
+    vertxVersion = '4.1.2'
+    junitJupiterEngineVersion = '5.7.2'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    //compile 'io.vertx:vertx-web:4.1.2'
+    implementation 'org.xerial:sqlite-jdbc:3.30.1'
+    implementation "io.vertx:vertx-core:$vertxVersion"
+    implementation "io.vertx:vertx-web:$vertxVersion"
+    implementation "io.vertx:vertx-web-client:$vertxVersion"
+    implementation "io.vertx:vertx-jdbc-client:$vertxVersion"
+    //implementation 'org.slf4j:slf4j-log4j12:1.7.32'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.3'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+run {
+    args = ['run', "org.example.App" ]
+}
