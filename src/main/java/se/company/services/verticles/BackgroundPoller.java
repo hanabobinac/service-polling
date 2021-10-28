@@ -4,7 +4,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
-
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import se.company.services.database.ServiceDB;
@@ -28,7 +27,7 @@ public class BackgroundPoller {
                         List<JsonArray> list = r.result().getResults();
                         for (JsonArray arr : list) {
                             ServiceRecord serviceRecord = new ServiceRecord(arr);
-                            serviceRecord.date(new Date());
+                            serviceRecord.updated(new Date());
                             serviceRecord.status(isReachableByHttpGet(serviceRecord.url()));
                             serviceDB.updateServiceStatus(serviceRecord);
                         }

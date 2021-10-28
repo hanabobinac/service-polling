@@ -1,9 +1,9 @@
 package se.company.services.verticles;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.MultiMap;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import se.company.services.utils.Logger;
 import se.company.services.database.ServiceDB;
@@ -29,10 +29,16 @@ public class ServiceVerticle extends AbstractVerticle {
     }
 
     private void get(Message msg) {
+        Logger.debug("ServiceVerticle.get()");
+
         var result = serviceDb.getAllServices().onComplete(r -> {
             if (r.succeeded()) {
-                var response = r.result().getResults().toString();
-                msg.reply(response);
+                var response = r.result().getResults();
+                var jsonArray = new JsonArray();
+                for (JsonArray item : response) {
+                    jsonArray.add(new ServiceRecord(item).toJson());
+                }
+                msg.reply(jsonArray.toString());
             } else {
                 msg.reply("Fail!");
             }
@@ -40,12 +46,18 @@ public class ServiceVerticle extends AbstractVerticle {
     }
 
     private void getByUrl(Message msg) {
+        Logger.debug("ServiceVerticle.getByUrl()");
+
         JsonObject json = (JsonObject) msg.body();
         ServiceRecord serviceRecord = new ServiceRecord(json);
         var result = serviceDb.getServiceByUrl(serviceRecord.url()).onComplete(r -> {
             if (r.succeeded()) {
-                var response = r.result().getResults().toString();
-                msg.reply(response);
+                var response = r.result().getResults();
+                var jsonArray = new JsonArray();
+                for (JsonArray item : response) {
+                    jsonArray.add(new ServiceRecord(item).toJson());
+                }
+                msg.reply(jsonArray.toString());
             } else {
                 msg.reply("Fail!");
             }
@@ -53,6 +65,8 @@ public class ServiceVerticle extends AbstractVerticle {
     }
 
     private void post(Message msg) {
+        Logger.debug("ServiceVerticle.post()");
+
         JsonObject json = (JsonObject) msg.body();
         ServiceRecord serviceRecord = new ServiceRecord(json);
         var result = serviceDb.addService(serviceRecord).onComplete(r -> {
@@ -70,6 +84,8 @@ public class ServiceVerticle extends AbstractVerticle {
     }
 
     private void patch(Message msg) {
+        Logger.debug("ServiceVerticle.patch()");
+
         ServiceRecord serviceRecord = new ServiceRecord((JsonObject) msg.body());
         var result = serviceDb.getServiceByUrl(serviceRecord.url()).onComplete(r -> {
             if (r.succeeded()) {
@@ -97,6 +113,8 @@ public class ServiceVerticle extends AbstractVerticle {
     }
 
     private void delete(Message msg) {
+        Logger.debug("ServiceVerticle.delete()");
+
         JsonObject json = (JsonObject) msg.body();
         ServiceRecord serviceRecord = new ServiceRecord(json);
         var result = serviceDb.deleteService(serviceRecord).onComplete(r -> {
