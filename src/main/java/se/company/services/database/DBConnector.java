@@ -13,7 +13,7 @@ import se.company.services.utils.Logger;
 
 public class DBConnector {
 
-    private final String DB_PATH = "db\\poller.db";
+    private final String DB_PATH = "poller.db";
     private final SQLClient client;
 
     public DBConnector(Vertx vertx) {

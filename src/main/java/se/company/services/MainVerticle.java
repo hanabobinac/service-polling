@@ -45,7 +45,7 @@ public class MainVerticle {
 
     private void initPoller() {
         poller = new BackgroundPoller(serviceDB);
-        vertx.setPeriodic(1000 * 200, this::timerHandler);
+        vertx.setPeriodic(1000 * 60, this::timerHandler);
     }
 
     private void initRoutes() {

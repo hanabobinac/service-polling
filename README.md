@@ -16,7 +16,7 @@ service and saves the response ("OK" or "FAIL"). User can add, update and delete
 ## Launch
 - Start server by running "MainVerticle" in Intellij IDEA, using existing Gradle configuration. 
 - Start web UI by opening webroot/index.html in a browser.
-- Database file poller.db will and table "services" will be created if they don't exist
+- Database file poller.db and table "services" will be created if they don't exist
 
 ## Examples of UI use
 - Services are shown in a table in browser.
