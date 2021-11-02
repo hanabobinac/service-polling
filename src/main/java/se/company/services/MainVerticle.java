@@ -12,6 +12,7 @@ import se.company.services.database.DBConnector;
 import se.company.services.database.DBCreator;
 import se.company.services.database.ServiceDB;
 import se.company.services.utils.Logger;
+import se.company.services.utils.UrlValidator;
 import se.company.services.verticles.BackgroundPoller;
 import se.company.services.verticles.ServiceVerticle;
 
@@ -103,6 +104,19 @@ public class MainVerticle {
     void postService(RoutingContext ctx) {
         Logger.debug("MainVerticle.postService()");
 
+        String url = ctx.pathParam("url");
+
+        boolean res = UrlValidator.isValid(url);
+        Logger.debug("UrlValidator: " + res);
+        if (!res) {
+            ctx.request().response()
+                    .setStatusCode(400)
+                    .putHeader("Access-Control-Allow-Origin", "*")
+                    .putHeader("Content-Type", "text/plain")
+                    .end("URL not good");
+            return;
+        }
+
         JsonObject json = new JsonObject();
         json.put("url", ctx.pathParam("url"));
         json.put("name", ctx.pathParam("name"));
@@ -119,10 +133,14 @@ public class MainVerticle {
                 var codeString = reply.result().headers().get("HttpStatusCode");
                 var code = Integer.parseInt(codeString);
                 Logger.debug("MainVerticle postService reply.result().headers(): " + h);
-                ctx.request().response().setStatusCode(code).
-                        end("Service already exists! Insert failed. Use PATCH method to update service name.");
+                ctx.request().response()
+                        .setStatusCode(code)
+                        .putHeader("Access-Control-Allow-Origin", "*")
+                        .putHeader("Content-Type", "text/plain")
+                        .end("Service already exists! Insert failed. Use PATCH method to update service name.");
             }
         });
+
     }
 
     void patchService(RoutingContext ctx) {

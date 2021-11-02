@@ -1,12 +1,14 @@
-const serviceTable =  document.querySelector('#service-table');
+const serviceTable = document.querySelector('#service-table');
 let servicesRequest = new Request('http://localhost:8080/services');
 
 refresh();
 
-function refresh(){
+function refresh() {
     fetch(servicesRequest)
-        .then(function(response) { return response.json(); })
-        .then(function(serviceList) {
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (serviceList) {
             serviceList.forEach(service => {
                 console.log("Service: " + JSON.stringify(service));
 
@@ -49,8 +51,8 @@ saveButton.onclick = evt => {
             'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({url:url, name:name})
-    }).then(res=> location.reload());
+        body: JSON.stringify({url: url, name: name})
+    }).then(processError);
 };
 
 const updateButton = document.querySelector('#update-service');
@@ -65,8 +67,8 @@ updateButton.onclick = evt => {
             'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'text/html'
         },
-        body: JSON.stringify({url:url, name:name})
-    }).then(res=> location.reload());
+        body: JSON.stringify({url: url, name: name})
+    }).then(processError);
 };
 
 const deleteButton = document.querySelector('#delete-service');
@@ -80,5 +82,19 @@ deleteButton.onclick = evt => {
             'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'text/html'
         }
-    }).then(res=> location.reload());
+    }).then(res => location.reload());
 };
+
+function processError(res) {
+    if (res.ok) {
+        location.reload()
+    } else {
+        console.log(res.status);
+        console.log(res.statusText);
+        res.text().then(x => {
+            console.log(x);
+            let urlWarning = document.querySelector('#warning-label');
+            urlWarning.innerText = x;
+        });
+    }
+}
